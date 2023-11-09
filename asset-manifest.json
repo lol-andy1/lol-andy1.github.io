@@ -1,13 +1,20 @@
 {
   "files": {
-    "main.css": "/static/css/main.c4002c11.css",
-    "main.js": "/static/js/main.551f52c8.js",
+    "main.css": "/static/css/main.eb086c8f.css",
+    "main.js": "/static/js/main.9d8001b8.js",
+    "static/media/sunrise.jpg": "/static/media/sunrise.fc8e7c3075e7601a7829.jpg",
+    "static/media/punch.png": "/static/media/punch.978ef8b869a57679fc1f.png",
+    "static/media/classic.png": "/static/media/classic.5c15fb222b80a866e2e5.png",
+    "static/media/milk.png": "/static/media/milk.ddd39eb675c28504c7b0.png",
+    "static/media/yogurt.png": "/static/media/yogurt.071c569815ad7f26fca6.png",
+    "static/media/KFTLogo.png": "/static/media/KFTLogo.41d80c13347990e3b200.png",
+    "static/media/weatherIcon.png": "/static/media/weatherIcon.09204d068c5f2b3ab9ec.png",
     "index.html": "/index.html",
-    "main.c4002c11.css.map": "/static/css/main.c4002c11.css.map",
-    "main.551f52c8.js.map": "/static/js/main.551f52c8.js.map"
+    "main.eb086c8f.css.map": "/static/css/main.eb086c8f.css.map",
+    "main.9d8001b8.js.map": "/static/js/main.9d8001b8.js.map"
   },
   "entrypoints": [
-    "static/css/main.c4002c11.css",
-    "static/js/main.551f52c8.js"
+    "static/css/main.eb086c8f.css",
+    "static/js/main.9d8001b8.js"
   ]
 }
