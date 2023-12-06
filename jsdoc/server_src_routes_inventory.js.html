@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server/src/routes/inventory.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server/src/routes/inventory.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module  InventoryRouter */
+const express = require("express");
+const pool = require("../db");
+const router = express.Router();
+
+/**
+ * Retrieves the inventory items.
+ * @name GET/getInventory
+ * @function
+ * @memberof module:InventoryRouter
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object[]} - An array containing inventory items.
+ */
+router.get("/getInventory", async (req, res) => {
+    try{
+        const inventory = await pool.query("SELECT * FROM inventory ORDER BY itemid");
+        res.json(inventory.rows);
+    } catch(err){
+        console.error(err);
+    }
+    
+});
+
+/**
+ * Restocks the inventory item by a specific amount.
+ * @name PUT/restock
+ * @function
+ * @memberof module:InventoryRouter
+ * @param {Object} req - Express request object containing id and amount.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - JSON indicating successful restocking.
+ */
+router.put("/restock", async (req, res) => {
+    try{
+        const {id, amount} = req.body;
+        await pool.query("UPDATE inventory SET itemquantity = itemquantity + $1 WHERE itemid = $2", [amount, id]);
+        res.status(200).json();
+    } catch(err){
+        res.status(400).json();
+        console.error(err);
+    }
+});
+
+/**
+ * Adds a new item to the inventory.
+ * @name POST/newInventoryItem
+ * @function
+ * @memberof module:InventoryRouter
+ * @param {Object} req - Express request object containing itemName, cost, and quantity.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - JSON indicating successful addition of an inventory item.
+ */
+router.post("/newInventoryItem", async (req, res) => {
+    try{
+        const {itemName, cost, quantity} = req.body;
+        const numItems = await pool.query("SELECT MAX(itemid) FROM inventory");
+        const id = numItems.rows[0].max + 1;
+        await pool.query("INSERT INTO inventory VALUES ($1, $2, $3, $4)", [id, itemName, quantity, cost]);
+        res.status(201).json();
+    } catch(err){
+        res.status(400).json();
+        console.error(err);
+    }
+});
+
+/**
+ * Deletes an item from the inventory by ID.
+ * @name DELETE/deleteInventoryItem/:id
+ * @function
+ * @memberof module:InventoryRouter
+ * @param {Object} req - Express request object containing the ID of the inventory item.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - JSON indicating successful deletion of an inventory item.
+ */
+router.delete("/deleteInventoryItem/:id", async (req, res) => {
+    try{
+        const {id} = req.params;
+        await pool.query("DELETE FROM inventory WHERE itemid = $1", [id]);
+        res.status(200).json();
+    } catch(err){
+        console.error(err);
+    }
+});
+
+module.exports = router;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

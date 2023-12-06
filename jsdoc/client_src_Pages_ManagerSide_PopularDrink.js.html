@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Pages/ManagerSide/PopularDrink.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Pages/ManagerSide/PopularDrink.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module PopularDrink */
+import DatePicker from "react-datepicker";
+import React, { useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+
+/**
+ * Component for fetching and displaying popular drinks within a specified date range.
+ * @returns {JSX.Element} The rendered popular drink page
+ * @memberof module:PopularDrink
+ */
+function PopularDrink() {
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [reportData, setReportData] = useState([]);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  /**
+   * Fetch popular drinks data from the server based on the specified date range.
+   * @memberof module:PopularDrink
+   */
+  const fetchPopularDrink = async () => {
+    try {
+      // Sanity check for date range
+      if (startDate &amp;&amp; endDate &amp;&amp; startDate > endDate) {
+        setErrorMessage("Error: Start date cannot be after end date");
+        return;
+      }
+
+      const response = await axios.post(
+        "https://kungfuteaserver09r.onrender.com/PopularDrink",
+        { startTime: startDate, endTime: endDate }
+      );
+      setReportData(response.data);
+      setErrorMessage(null); // Clear any previous error message
+
+      console.log(reportData);
+      console.log(startDate);
+      console.log(endDate);
+    } catch (error) {
+      console.error("Error fetching excess report:", error);
+      setErrorMessage("Error fetching excess report");
+    }
+  };
+
+  return (
+    &lt;div className="vh-100" style={{ paddingTop: "6rem" }}>
+      &lt;div className=" mx-2 text-start ps-4 ">
+        &lt;Link to="/managerHome" className="btn btn-outline-primary me-2 ">
+          Back
+        &lt;/Link>
+        &lt;Link to="/orderHistory" className="btn btn-outline-primary me-2 ">
+          Order History
+        &lt;/Link>
+        &lt;Link to="/SalesReport" className="btn btn-outline-primary me-2">
+          Sales Report
+        &lt;/Link>
+        &lt;Link to="/ExcessReport" className="btn btn-outline-primary me-2">
+          Excess Report
+        &lt;/Link>
+      &lt;/div>
+      &lt;h1 className="text-center">Popular Drinks&lt;/h1>
+      &lt;div className="d-flex justify-content-center">
+        &lt;DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          dateFormat="yyyy-MM-dd"
+          placeholderText="Start Date"
+        />
+        &lt;div className="mx-2">&lt;/div>
+        {/* Add margin between date pickers */}
+        &lt;DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          dateFormat="yyyy-MM-dd"
+          placeholderText="End Date"
+        />
+        &lt;div className="mx-2">&lt;/div>
+        {/* Add margin between date picker and button */}
+        &lt;button
+          onClick={fetchPopularDrink}
+          disabled={!startDate || !endDate}
+          className="btn btn-primary"
+        >
+          Generate Report
+        &lt;/button>
+      &lt;/div>
+
+      {errorMessage &amp;&amp; &lt;div className="text-danger">{errorMessage}&lt;/div>}
+      &lt;div className="d-flex justify-content-center">
+        {reportData.length > 0 &amp;&amp; (
+          &lt;table className="table mt-4 w-50">
+            &lt;thead>
+              &lt;tr>
+                &lt;th>Drink Name&lt;/th>
+                &lt;th>Sold&lt;/th>
+              &lt;/tr>
+            &lt;/thead>
+            &lt;tbody>
+              {reportData.map((item) => (
+                &lt;tr key={item.drinkname}>
+                  &lt;td>{item.drinkname}&lt;/td>
+                  &lt;td>{item.count}&lt;/td>
+                &lt;/tr>
+              ))}
+            &lt;/tbody>
+          &lt;/table>
+        )}
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+export default PopularDrink;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

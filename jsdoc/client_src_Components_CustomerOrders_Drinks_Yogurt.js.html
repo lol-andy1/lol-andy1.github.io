@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Components/CustomerOrders/Drinks/Yogurt.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Components/CustomerOrders/Drinks/Yogurt.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module Yogurt */
+
+import React from 'react';
+import SideBar from '../SideBar'; // Update the import statement
+import { useState, useEffect, useContext } from "react";
+import { Card } from 'react-bootstrap';
+import { OrderContext } from '../OrderContext';
+import ToppingsModal from '../Modal';
+import yogurt_grapefruit from '../../../Images/YogurtTeaPics/yogurt_grapefruit.jpg';
+import yogurt_green_tea from '../../../Images/YogurtTeaPics/yogurt_green_tea.jpg';
+import yogurt_orange from '../../../Images/YogurtTeaPics/yogurt_orange.jpg';
+import { Link } from 'react-router-dom';
+import { FontSizeContext } from '../../FontSizing/FontSizeContext';
+
+import TranslateComponent from '../../TopNavBar/Translate';
+import { useLanguage } from '../../TopNavBar/LanguageContext';
+/**
+ * Map of yogurt tea names to their respective images.
+ * @type {Object.&lt;string, string>}
+ */
+const yogurtTeaPics = {
+  'yogurt grapefruit':yogurt_grapefruit,
+  'yogurt green tea':yogurt_green_tea,
+  'yogurt orange':yogurt_orange,
+}
+/**
+ * Functional component for the menu board of yogurt drinks.
+ * @returns {JSX.Element} The rendered menu board component.
+ */
+const MenuBoard = () => {
+
+  const [drinks, setDrinks] = useState([]);
+  const [selectedDrink, setSelectedDrink] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const { fontSize } = useContext(FontSizeContext);
+    /**
+   * Fetch drinks from the server.
+   * @async
+   * @function
+   */
+  const getDrinks = async() => {
+    try{
+        const response = await fetch("https://kungfuteaserver09r.onrender.com/getDrinks");
+        const jsonData = await response.json();
+        setDrinks(jsonData);
+    } catch (err){
+        console.error(err);
+    }   
+  }
+ /**
+   * Handle card click to show modal.
+   * @param {Object} drink - The selected drink.
+   * @function
+   */
+  const handleCardClick = (drink) => {
+    setSelectedDrink(drink);
+    setShowModal(true);
+  };
+
+  const classicDrinks = drinks.filter(drink => drink.drinktype === 'yogurt');
+
+  const column1 = classicDrinks.slice(0, Math.ceil(classicDrinks.length / 3));
+  const column2 = classicDrinks.slice(Math.ceil(classicDrinks.length / 3), Math.ceil((classicDrinks.length / 3) * 2));
+  const column3 = classicDrinks.slice(Math.ceil((classicDrinks.length / 3) * 2));
+
+  // Define an array of menu items for drinks and toppings
+  const containerStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+  };
+
+  const productsText = {
+    display: 'flex',
+    margin: '0 auto',
+    marginTop: '40px',
+    marginBottom: '50px',
+  };
+
+  const buttonStyles = {
+    fontSize: '2rem',
+    padding: '70px 40px',
+    width: '400px',
+    position: 'relative',
+    zIndex: '1',
+    marginBottom: '80px',
+    margin: '60px',
+  };
+
+  const productsColumn = {
+    display: 'flex',
+    flexDirection: 'column',
+    marginLeft: '28%',
+    justifyContent: 'center',
+    width: '100%'
+  };
+
+  const buttonContainer = {
+    display: 'flex',
+    justifyContent: 'center'
+  };
+
+  const buttonColumn1 = {
+    display: 'flex',
+    flexDirection: 'column',
+    marginRight: '10px',
+  };
+
+  const buttonColumn2 = {
+    display: 'flex',
+    flexDirection: 'column',
+    marginLeft: '10px',
+    marginRight: '10px',
+  };
+
+  const buttonColumn3 = {
+    display: 'flex',
+    flexDirection: 'column',
+    marginLeft: '10px',
+    marginRight: '50px',
+
+  };
+
+  const checkoutButton = {
+    display: 'flex',
+    fontSize: `${fontSize}rem`,
+    padding: '20px 10px',
+    width: '170px',
+    position: 'relative',
+    zIndex: '1',
+    marginBottom: '40px',
+    marginLeft: 'auto',
+    marginRight: '30px',
+    justifyContent: 'center', // Center the text horizontally
+    alignItems: 'center', // Center the text vertically
+  };
+
+  const imageStyles = {
+    margin: '50px',
+    objectFit: 'cover',
+    display: 'block',
+    boxShadow: '0 0 20px rgba(0, 0, 0, 0.3)',
+    transition: 'box-shadow 0.3s ease',
+  };
+
+  useEffect(() => {
+    getDrinks()
+  }, [drinks]);
+
+  const { language } = useLanguage();
+
+  return (
+    &lt;div>
+      &lt;div className='mt-5' style={containerStyle}>
+        &lt;div>
+          &lt;SideBar />
+        &lt;/div>
+        &lt;div style={productsColumn}>
+          &lt;h1 style={productsText}>&lt;TranslateComponent textToTranslate = {"Yogurt Drinks"} targetLanguage = {language} />&lt;/h1>
+          &lt;div style={buttonContainer}>
+            &lt;div style={buttonColumn1}>
+              {column1.map(drink => (
+              &lt;div key={drink.drinkid} onClick={() => handleCardClick(drink)}>
+                &lt;Card style={{marginBottom: '50px', width: '300px'}}>
+                  &lt;Card.Img variant="top  "
+                    src={`${yogurtTeaPics[drink.drinkname]}`}
+                    alt={drink.drinkname}
+                    style={{imageStyles}} // Adjust styling as needed
+                  />
+                  &lt;Card.Body>
+                    &lt;Card.Title style={{fontSize: `${fontSize}rem`}}>{&lt;TranslateComponent textToTranslate = {drink.drinkname} targetLanguage = {language} />}&lt;/Card.Title>
+                    &lt;Card.Text style={{ textAlign: 'right', fontSize: `${fontSize}rem`}}>
+                      ${drink.baseprice}
+                    &lt;/Card.Text>
+                  &lt;/Card.Body>
+                &lt;/Card>
+              &lt;/div>
+              ))}
+            &lt;/div>
+            &lt;div style={buttonColumn2}>
+              {column2.map(drink => (
+                &lt;div key={drink.drinkid} onClick={() => handleCardClick(drink)}>
+                  &lt;Card style={{marginBottom: '50px', width: '300px'}}>
+                    &lt;Card.Img variant="top  "
+                      src={`${yogurtTeaPics[drink.drinkname]}`}
+                      alt={drink.drinkname}
+                      style={{imageStyles}} // Adjust styling as needed
+                    />
+                    &lt;Card.Body>
+                      &lt;Card.Title style={{fontSize: `${fontSize}rem`}}>{&lt;TranslateComponent textToTranslate = {drink.drinkname} targetLanguage = {language} />}&lt;/Card.Title>
+                      &lt;Card.Text style={{ textAlign: 'right', fontSize: `${fontSize}rem`}}>
+                        ${drink.baseprice}
+                      &lt;/Card.Text>
+                    &lt;/Card.Body>
+                  &lt;/Card>
+                &lt;/div>
+              ))}
+            &lt;/div>
+            &lt;div style={buttonColumn3}>
+              {column3.map(drink => (
+                &lt;div key={drink.drinkid} onClick={() => handleCardClick(drink)}>
+                  &lt;Card style={{marginBottom: '50px', width: '300px'}}>
+                    &lt;Card.Img variant="top  "
+                      src={`${yogurtTeaPics[drink.drinkname]}`}
+                      alt={drink.drinkname}
+                      style={{imageStyles}} // Adjust styling as needed
+                    />
+                    &lt;Card.Body>
+                      &lt;Card.Title style={{fontSize: `${fontSize}rem`}}>{&lt;TranslateComponent textToTranslate = {drink.drinkname} targetLanguage = {language} />}&lt;/Card.Title>
+                      &lt;Card.Text style={{ textAlign: 'right', fontSize: `${fontSize}rem`}}>
+                        ${drink.baseprice}
+                      &lt;/Card.Text>
+                    &lt;/Card.Body>
+                &lt;/Card>
+                &lt;/div>
+              ))}`
+            &lt;/div>
+          &lt;/div>
+        &lt;/div>
+      &lt;/div>
+      {showModal &amp;&amp; selectedDrink &amp;&amp; (
+        &lt;ToppingsModal
+          show={showModal}
+          handleClose={() => setShowModal(false)}
+          selectedDrink={selectedDrink}
+        />
+      )}
+    &lt;/div>
+  );
+};
+
+export default MenuBoard;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server/src/routes/drinks.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server/src/routes/drinks.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module  DrinksRouter */
+const express = require("express");
+const pool = require("../db");
+const router = express.Router();
+
+/**
+ * Retrieves all drinks from the database.
+ * @name GET/getDrinks
+ * @function
+ * @memberof module:DrinksRouter
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Array} - Array of drinks information.
+ */
+router.get("/getDrinks", async(req, res) => {
+    try {
+        const drinkInfo = await pool.query("SELECT * FROM drink ORDER BY drinkid ASC");
+        res.json(drinkInfo.rows);
+    } 
+    catch (e) {
+       console.error(e.message) 
+    }
+});
+
+/**
+ * Deletes a drink item from the database.
+ * @name DELETE/deleteDrinkItem
+ * @function
+ * @memberof module:DrinksRouter
+ * @param {Object} req - Express request object containing drink ID.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - Status of the deletion process.
+ */
+router.delete("/deleteDrinkItem/:id", async (req, res) => {
+    try{
+        const {id} = req.params;
+        await pool.query("DELETE FROM drink WHERE drinkid = $1", [id]);
+        res.status(200).json();
+    } catch(err){
+        console.error(err);
+    }
+});
+
+/**
+ * Adds a new drink item to the database.
+ * @name POST/newDrinkItem
+ * @function
+ * @memberof module:DrinksRouter
+ * @param {Object} req - Express request object containing drink information.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - Status of the new drink addition process.
+ */
+router.post("/newDrinkItem", async (req, res) => {
+    try {
+        const { drinkName, type } = req.body;
+
+        // Assuming drinkid is generated automatically by the database
+        const numItems = await pool.query("SELECT MAX(drinkid) FROM drink");
+        const id = numItems.rows[0].max + 1;
+
+        // Convert ingred to an array if it's not already
+        //const ingredArray = Array.isArray(ingred) ? ingred : [ingred];
+
+        // Insert the new drink with the provided values
+        const newDrink = await pool.query(
+            "INSERT INTO drink (drinkid, drinkname, drinktype, baseprice, itemid_vector) VALUES ($1, $2, $3, 0, ARRAY[1,2])",
+            [id, drinkName, type]
+        );
+
+        res.status(200).json({ message: "New Drink Added" });
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ error: "Invalid input data", details: err.message });
+    }
+});
+
+/**
+ * Updates the base price of a drink.
+ * @name PUT/updatePrice
+ * @function
+ * @memberof module:DrinksRouter
+ * @param {Object} req - Express request object containing drink ID and new price.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - Status of the price update process.
+ */
+router.put("/updatePrice", async (req, res) => {
+    try {
+        const { drinkid, price } = req.body;
+        const result = await pool.query(
+            "UPDATE drink SET baseprice = $1 WHERE drinkid = $2 RETURNING *",
+            [price, drinkid]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "No drink found with the given ID" });
+        }
+
+        res.status(200).json({ message: "Price updated successfully", updatedDrink: result.rows[0] });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+        console.error(err);
+    }
+});
+
+/**
+ * Updates the drink type based on ID.
+ * @name PUT/handleTypeChange
+ * @function
+ * @memberof module:DrinksRouter
+ * @param {Object} req - Express request object containing drink ID and new type.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - Status of the drink type update process.
+ */
+router.put("/handleTypeChange", async (req, res) => {
+    try {
+        const { id, newType } = req.body;
+        const result = await pool.query(
+            "UPDATE drink SET drinktype = $1 WHERE drinkid = $2",
+            [newType, id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "No drink found with the given ID" });
+        }
+
+        res.status(200).json({ message: "Type updated successfully", updatedDrink: result.rows[0] });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+        console.error(err);
+    }
+});
+
+/**
+ * Updates the drink name based on ID.
+ * @name PUT/handleNameChange
+ * @function
+ * @memberof module:DrinksRouter
+ * @param {Object} req - Express request object containing drink ID and new name.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - Status of the drink name update process.
+ */
+router.put("/handleNameChange", async (req, res) => {
+    try {
+        const { id, newName } = req.body;
+        const result = await pool.query(
+            "UPDATE drink SET drinkname = $1 WHERE drinkid = $2",
+            [newName, id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "No drink found with the given ID" });
+        }
+
+        res.status(200).json({ message: "Type updated successfully", updatedDrink: result.rows[0] });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+        console.error(err);
+    }
+});
+
+/**
+ * Updates the inventory of a drink based on ID.
+ * @name PUT/handleInventoryChange
+ * @function
+ * @memberof module:DrinksRouter
+ * @param {Object} req - Express request object containing drink ID and new inventory.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - Status of the drink inventory update process.
+ */
+router.put("/handleInventoryChange", async (req, res) => {
+    try {
+        const { id, newInventory } = req.body;
+        const ingredArray = Array.isArray(newInventory) ? newInventory : [newInventory];
+        const result = await pool.query(
+            "UPDATE drink SET itemid_vector = $1 WHERE drinkid = $2",
+            [ingredArray, id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "No drink found with the given ID" });
+        }
+
+        res.status(200).json({ message: "Ingredients updated successfully", updatedDrink: result.rows[0] });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+        console.error(err);
+    }
+});
+
+module.exports = router;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Pages/ManagerSide/ExcessReport.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Pages/ManagerSide/ExcessReport.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module ExcessReport */
+
+import React, { useState } from "react";
+import axios from "axios";
+import DatePicker from "react-datepicker";
+import { Link } from "react-router-dom";
+
+import "react-datepicker/dist/react-datepicker.css";
+
+/**
+ * Custom input component for displaying a read-only date input with a placeholder.
+ * @param {Object} props - The properties passed to the component.
+ * @param {string} props.value - The value to be displayed in the input.
+ * @param {Function} props.onClick - The function to be called when the input is clicked.
+ * @returns {JSX.Element} The CustomReadOnlyInput component.
+ * @memberof module:ExcessReport
+ */
+const CustomReadOnlyInput = ({ value, onClick }) => (
+  &lt;input
+    type="text"
+    value={value}
+    placeholder="Select a date"
+    onClick={onClick}
+    readOnly
+    style={{ cursor: "pointer" }}
+  />
+);
+
+/**
+ * Component for generating and displaying the Excess Report.
+ * @returns {JSX.Element} The rendered excess report page.
+ * @memberof module:ExcessReport
+ */
+function ExcessReport() {
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [reportData, setReportData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  /**
+   * Fetches the excess report data based on the selected date.
+   * @memberof module:ExcessReport
+   * @returns {Promise&lt;void>} A Promise that resolves when the data is fetched.
+   */
+  const fetchExcessReport = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post("https://kungfuteaserver09r.onrender.com/ExcessReport", {
+        timestamp: selectedDate,
+      });
+      setReportData(response.data);
+      console.log("Successfully retrieved excess report data");
+    } catch (error) {
+      console.error("Error fetching excess report:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    &lt;>
+      &lt;div
+        className="col-6 mb-2 text-start ps-4 "
+        style={{ marginTop: "6rem" }}
+      >
+        &lt;Link to="/managerHome" className="btn btn-outline-primary me-2">
+          Back
+        &lt;/Link>
+        &lt;Link to="/orderHistory" className="btn btn-outline-primary me-2">
+          Order History
+        &lt;/Link>
+        &lt;Link to="/SalesReport" className="btn btn-outline-primary me-2">
+          Sales Report
+        &lt;/Link>
+        &lt;Link to="/PopularDrink" className="btn btn-outline-primary me-2">
+          Popular Drinks
+        &lt;/Link>
+      &lt;/div>
+
+      &lt;div className="container mt-5">
+        &lt;div className="text-center mt-5 p-5">
+          &lt;h2 className="my-3">Excess Report&lt;/h2>
+          &lt;div>
+            &lt;DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              dateFormat="yyyy-MM-dd"
+              customInput={&lt;CustomReadOnlyInput />}
+              disabled={loading}
+              style={{ marginLeft: "10px" }}
+            />
+            &lt;div className="m-2">&lt;/div>
+            &lt;button
+              className="btn btn-primary me-2"
+              onClick={fetchExcessReport}
+              disabled={!selectedDate || loading}
+            >
+              Generate Report
+            &lt;/button>
+          &lt;/div>
+          {loading &amp;&amp; &lt;p>Loading...&lt;/p>}
+          {reportData &amp;&amp; reportData.length === 0 &amp;&amp; selectedDate &amp;&amp; (
+            &lt;p>No data to be reported.&lt;/p>
+          )}
+          {reportData.length > 0 &amp;&amp; (
+            &lt;table className="table mt-5">
+              &lt;thead>
+                &lt;tr>
+                  &lt;th>Item ID&lt;/th>
+                  &lt;th>Item Name&lt;/th>
+                  &lt;th>Item Quantity&lt;/th>
+                  &lt;th>Sold&lt;/th>
+                &lt;/tr>
+              &lt;/thead>
+              &lt;tbody>
+                {reportData.map((item) => (
+                  &lt;tr key={item.itemid}>
+                    &lt;td>{item.itemid}&lt;/td>
+                    &lt;td>{item.itemname}&lt;/td>
+                    &lt;td>{item.itemquantity}&lt;/td>
+                    &lt;td>{item.sold}&lt;/td>
+                  &lt;/tr>
+                ))}
+              &lt;/tbody>
+            &lt;/table>
+          )}
+        &lt;/div>
+      &lt;/div>
+    &lt;/>
+  );
+}
+
+export default ExcessReport;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

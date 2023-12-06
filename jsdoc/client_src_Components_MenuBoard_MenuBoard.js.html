@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Components/MenuBoard/MenuBoard.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Components/MenuBoard/MenuBoard.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module MenuBoard */
+import React from "react";
+import { useState, useEffect, useContext } from "react";
+import { FontSizeContext } from "../FontSizing/FontSizeContext";
+import { Card } from "react-bootstrap";
+import almond_milk_tea from "../../Images/MilkTeaPics/almond_milk_tea.jpg";
+import coconut_milk_tea from "../../Images/MilkTeaPics/coconut_milk_tea.jpg";
+import coffee_milk_tea from "../../Images/MilkTeaPics/coffee_milk_tea.jpg";
+import honey_milk_green_tea from "../../Images/MilkTeaPics/honey_milk_green_tea.jpg";
+import honey_milk_tea from "../../Images/MilkTeaPics/honey_milk_tea.jpg";
+import honey_oolong_milk_tea from "../../Images/MilkTeaPics/honey_oolong_milk_tea.jpg";
+import kung_fu_milk_green_tea from "../../Images/MilkTeaPics/kung_fu_milk_green_tea.jpg";
+import kung_fu_milk_tea from "../../Images/MilkTeaPics/kung_fu_milk_tea.jpg";
+import kung_fu_oolong_milk_tea from "../../Images/MilkTeaPics/kung_fu_oolong_milk_tea.jpg";
+import roasted_chestnut_milk_tea from "../../Images/MilkTeaPics/roasted_chestnut_milk_tea.jpg";
+import rosehip_milk_tea from "../../Images/MilkTeaPics/rosehip_milk_tea.jpg";
+import taro_milk_green_tea from "../../Images/MilkTeaPics/taro_milk_green_tea.jpg";
+import taro_milk_tea from "../../Images/MilkTeaPics/taro_milk_tea.jpg";
+import thai_milk_tea from "../../Images/MilkTeaPics/thai_milk_tea.jpg";
+import wintermelon_milk_green_tea from "../../Images/MilkTeaPics/wintermelon_milk_green_tea.jpg";
+import kung_fu_black_tea from "../../Images/ClassicTeaPics/kung_fu_black_tea.jpg";
+import brown_sugar_ginger from "../../Images/ClassicTeaPics/brown sugar ginger.jpg";
+import honey_black_tea from "../../Images/ClassicTeaPics/honey black tea.jpg";
+import honey_green_tea from "../../Images/ClassicTeaPics/honey green tea.jpg";
+import honey_oolong_tea from "../../Images/ClassicTeaPics/honey oolong tea.jpg";
+import kung_fu_green_tea from "../../Images/ClassicTeaPics/kung fu green tea.jpg";
+import kung_fu_honey_tea from "../../Images/ClassicTeaPics/kung fu honey tea.jpg";
+import kung_fu_oolong_tea from "../../Images/ClassicTeaPics/kung fu oolong tea.jpg";
+import longan_jujube_tea from "../../Images/ClassicTeaPics/longan jujube tea.jpg";
+import wintermelon_green_tea from "../../Images/ClassicTeaPics/wintermelon green tea.jpg";
+import wintermelon_tea from "../../Images/ClassicTeaPics/wintermelon tea.jpg";
+import grapefruit_green_tea from "../../Images/PunchTeaPics/grapefruit_green_tea.jpg";
+import guava_punch from "../../Images/PunchTeaPics/guava_punch.jpg";
+import honey_lemonade from "../../Images/PunchTeaPics/honey_lemonade.jpg";
+import kiwi_punch from "../../Images/PunchTeaPics/kiwi_punch.jpg";
+import lychee_black_tea from "../../Images/PunchTeaPics/lychee_black_tea.jpg";
+import lychee_punch from "../../Images/PunchTeaPics/lychee_punch.jpg";
+import mango_green_tea from "../../Images/PunchTeaPics/mango_green_tea.jpg";
+import orange_green_tea from "../../Images/PunchTeaPics/orange_green_tea.jpg";
+import passionfruit_green_tea from "../../Images/PunchTeaPics/passionfruit_green_tea.jpg";
+import peach_oolong_tea from "../../Images/PunchTeaPics/peach_oolong_tea.jpg";
+import rosehip_lemonade from "../../Images/PunchTeaPics/rosehip_lemonade.jpg";
+import strawberry_lemon_green_tea from "../../Images/PunchTeaPics/strawberry_lemon_green_tea.jpg";
+import strawberry_lemonade from "../../Images/PunchTeaPics/strawberry_lemonade.jpg";
+import sunshine_grape_ade from "../../Images/PunchTeaPics/sunshine_grape-ade.jpg";
+import sunshine_pineapple_tea from "../../Images/PunchTeaPics/sunshine_pineapple_tea.jpg";
+import white_grape_punch from "../../Images/PunchTeaPics/white_grape_punch.jpg";
+import yogurt_grapefruit from "../../Images/YogurtTeaPics/yogurt_grapefruit.jpg";
+import yogurt_green_tea from "../../Images/YogurtTeaPics/yogurt_green_tea.jpg";
+import yogurt_orange from "../../Images/YogurtTeaPics/yogurt_orange.jpg";
+import red_bean from "../../Images/ToppingsPics/redbean.jpg";
+import nata from "../../Images/ToppingsPics/nata.jpg";
+import herbal from "../../Images/ToppingsPics/herbal.jpg";
+import mango from "../../Images/ToppingsPics/mango.jpg";
+import bubbles from "../../Images/ToppingsPics/bubbles.jpg";
+import oreo from "../../Images/ToppingsPics/oreo.jpg";
+import pudding from "../../Images/ToppingsPics/pudding.jpg";
+import defaultDrink from "../../Images/homeBackground.jpg";
+import TranslateComponent from "../TopNavBar/Translate";
+import { useLanguage } from "../TopNavBar/LanguageContext";
+
+/* Object containing images related to tea and toppings
+*/
+const teaPics = {
+  "almond milk tea": almond_milk_tea,
+  "coconut milk tea": coconut_milk_tea,
+  "coffee milk tea": coffee_milk_tea,
+  "honey milk green tea": honey_milk_green_tea,
+  "honey milk tea": honey_milk_tea,
+  "honey oolong milk tea": honey_oolong_milk_tea,
+  "kung fu milk green tea": kung_fu_milk_green_tea,
+  "kung fu milk tea": kung_fu_milk_tea,
+  "kung fu oolong milk tea": kung_fu_oolong_milk_tea,
+  "roasted chestnut milk tea": roasted_chestnut_milk_tea,
+  "rosehip milk tea": rosehip_milk_tea,
+  "taro milk green tea": taro_milk_green_tea,
+  "taro milk tea": taro_milk_tea,
+  "thai milk tea": thai_milk_tea,
+  "winter melon milk green tea": wintermelon_milk_green_tea,
+  "kung fu black tea": kung_fu_black_tea,
+  "brown sugar ginger": brown_sugar_ginger,
+  "honey black tea": honey_black_tea,
+  "honey green tea": honey_green_tea,
+  "honey oolong tea": honey_oolong_tea,
+  "kung fu green tea": kung_fu_green_tea,
+  "kung fu honey tea": kung_fu_honey_tea,
+  "kung fu oolong tea": kung_fu_oolong_tea,
+  "longan jujube tea": longan_jujube_tea,
+  "wintermelon green tea": wintermelon_green_tea,
+  "wintermelon tea": wintermelon_tea,
+  "grapefruit green tea": grapefruit_green_tea,
+  "guava punch/black tea": guava_punch,
+  "honey lemonade": honey_lemonade,
+  "kiwi punch": kiwi_punch,
+  "lychee black tea": lychee_black_tea,
+  "lychee punch": lychee_punch,
+  "mango green tea": mango_green_tea,
+  "orange green tea": orange_green_tea,
+  "passionfruit green tea": passionfruit_green_tea,
+  "peach oolong tea": peach_oolong_tea,
+  "rosehip lemonade": rosehip_lemonade,
+  "strawberry lemon green tea": strawberry_lemon_green_tea,
+  "strawberry lemonade": strawberry_lemonade,
+  "sunshine grape-ade": sunshine_grape_ade,
+  "sunshine pineapple tea": sunshine_pineapple_tea,
+  "white grape punch": white_grape_punch,
+  "yogurt grapefruit": yogurt_grapefruit,
+  "yogurt green tea": yogurt_green_tea,
+  "yogurt orange": yogurt_orange,
+  "Red Bean": red_bean,
+  "Bubbles": bubbles,
+  "Oreo": oreo,
+  "Pudding": pudding,
+  "Nata Jelly": nata,
+  "Herbal Jelly": herbal,
+  "Mango Jelly": mango,
+};
+
+/**
+ * Component representing the menu board for displaying drinks and toppings.
+ * @returns {JSX.Element} The JSX element containing the menu board.
+ * @memberof module:MenuBoard
+ */
+const MenuBoard = () => {
+  const [drinks, setDrinks] = useState([]);
+  const [toppings, setToppings] = useState([]);
+  const { fontSize } = useContext(FontSizeContext);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const drinksResponse = await fetch(
+          "https://kungfuteaserver09r.onrender.com/getDrinks"
+        );
+        const drinksData = await drinksResponse.json();
+        setDrinks(drinksData);
+
+        const toppingsResponse = await fetch(
+          "https://kungfuteaserver09r.onrender.com/getToppings"
+        );
+        const toppingsData = await toppingsResponse.json();
+        setToppings(toppingsData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const allDrinks = drinks;
+
+  const column1 = allDrinks.slice(0, Math.ceil((allDrinks.length / 5) * 1));
+  const column2 = allDrinks.slice(
+    Math.ceil((allDrinks.length / 5) * 1),
+    Math.ceil((allDrinks.length / 5) * 2)
+  );
+  const column3 = allDrinks.slice(
+    Math.ceil((allDrinks.length / 5) * 2),
+    Math.ceil((allDrinks.length / 5) * 3)
+  );
+  const column4 = allDrinks.slice(
+    Math.ceil((allDrinks.length / 5) * 3),
+    Math.ceil((allDrinks.length / 5) * 4)
+  );
+  const column5 = allDrinks.slice(
+    Math.ceil((allDrinks.length / 5) * 4),
+    Math.ceil((allDrinks.length / 5) * 5)
+  );
+
+  const containerStyle = {
+    display: "flex",
+    flexDirection: "row",
+  };
+
+  const productsText = {
+    display: "flex",
+    margin: "0 auto",
+    marginTop: "40px",
+    marginBottom: "50px",
+  };
+
+  const productsColumn = {
+    display: "flex",
+    flexDirection: "column",
+    marginLeft: "5px",
+    justifyContent: "center",
+    width: "100%",
+  };
+
+  const buttonContainer = {
+    display: "flex",
+    justifyContent: "center",
+  };
+
+  const buttonColumn1 = {
+    display: "flex",
+    flexDirection: "column",
+    width: "300px",
+    marginLeft: "20px",
+
+    marginRight: "10px",
+  };
+
+  const buttonColumn2 = {
+    display: "flex",
+    flexDirection: "column",
+    width: "300px",
+
+    marginRight: "10px",
+  };
+
+  const buttonColumn3 = {
+    display: "flex",
+    flexDirection: "column",
+    width: "300px",
+
+    marginRight: "10px",
+  };
+  const buttonColumn4 = {
+    display: "flex",
+    flexDirection: "column",
+    width: "300px",
+
+    marginRight: "10px",
+  };
+  const buttonColumn5 = {
+    display: "flex",
+    flexDirection: "column",
+    width: "300px",
+
+    marginRight: "10px",
+  };
+
+  const imageStyles = {
+    margin: "50px",
+    objectFit: "cover",
+    display: "block",
+    boxShadow: "0 0 20px rgba(0, 0, 0, 0.3)",
+    transition: "box-shadow 0.3s ease",
+    height: "200px",
+  };
+  const toppingsContainer = {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+  };
+
+  const { language } = useLanguage();
+
+  /**
+   * Render function for the MenuBoard component.
+   * @returns {JSX.Element} The JSX element containing the menu board.
+   * @memberof module:MenuBoard
+   */
+  return (
+    &lt;div>
+      &lt;div className="mt-5" style={containerStyle}>
+        &lt;div style={productsColumn}>
+          &lt;h1 style={productsText}>
+            &lt;TranslateComponent
+              textToTranslate={"Kung Fu Tea Menu"}
+              targetLanguage={language}
+            />
+          &lt;/h1>
+          &lt;div style={toppingsContainer}>
+            {toppings.map((topping) => (
+              &lt;div
+                key={topping.toppingid}
+                style={{
+                  margin: "10px 15px",
+                  marginLeft: "30px",
+                  width: "150px",
+                  display: "inline-block",
+                  textAlign: "center",
+                }}
+              >
+                &lt;Card>
+                  {teaPics[topping.toppingname] ? (
+                    &lt;Card.Img
+                      variant="top"
+                      src={teaPics[topping.toppingname]}
+                      alt={topping.toppingname}
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        maxHeight: "100px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    &lt;Card.Img
+                      variant="top"
+                      src={defaultDrink}
+                      alt={topping.toppingname}
+                      style={{
+                        width: "100%",
+                        height: "200px",
+                        maxHeight: "100px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
+                  &lt;Card.Body>
+                    &lt;Card.Title
+                      style={{
+                        textAlign: "center",
+                        fontSize: `${fontSize}rem`,
+                      }}
+                    >
+                      &lt;TranslateComponent
+                        textToTranslate={topping.toppingname}
+                        targetLanguage={language}
+                      />
+                    &lt;/Card.Title>
+                    &lt;Card.Text
+                      style={{
+                        textAlign: "center",
+                        fontSize: `${fontSize}rem`,
+                      }}
+                    >
+                      ${topping.toppingprice}
+                    &lt;/Card.Text>
+                  &lt;/Card.Body>
+                &lt;/Card>
+              &lt;/div>
+            ))}
+          &lt;/div>
+
+          &lt;div style={buttonContainer}>
+            &lt;div style={buttonColumn1}>
+              {column1.map((drink) => (
+                &lt;div key={drink.drinkid}>
+                  &lt;Card style={{ marginBottom: "20px", width: "240px" }}>
+                    &lt;Card.Img
+                      variant="top"
+                      src={`${teaPics[drink.drinkname]}`}
+                      alt={drink.drinkname}
+                      style={{ imageStyles }} // Adjust styling as needed
+                    />
+                    &lt;Card.Body>
+                      &lt;Card.Title
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        {
+                          &lt;TranslateComponent
+                            textToTranslate={drink.drinkname}
+                            targetLanguage={language}
+                          />
+                        }
+                      &lt;/Card.Title>
+                      &lt;Card.Text
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        ${drink.baseprice}
+                      &lt;/Card.Text>
+                    &lt;/Card.Body>
+                  &lt;/Card>
+                &lt;/div>
+              ))}
+            &lt;/div>
+            &lt;div style={buttonColumn2}>
+              {column2.map((drink) => (
+                &lt;div key={drink.drinkid}>
+                  &lt;Card style={{ marginBottom: "20px", width: "240px" }}>
+                    &lt;Card.Img
+                      variant="top "
+                      src={`${teaPics[drink.drinkname]}`}
+                      alt={drink.drinkname}
+                      style={{ imageStyles }} // Adjust styling as needed
+                    />
+                    &lt;Card.Body>
+                      &lt;Card.Title
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        {
+                          &lt;TranslateComponent
+                            textToTranslate={drink.drinkname}
+                            targetLanguage={language}
+                          />
+                        }
+                      &lt;/Card.Title>
+                      &lt;Card.Text
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        ${drink.baseprice}
+                      &lt;/Card.Text>
+                    &lt;/Card.Body>
+                  &lt;/Card>
+                &lt;/div>
+              ))}
+            &lt;/div>
+            &lt;div style={buttonColumn3}>
+              {column3.map((drink) => (
+                &lt;div key={drink.drinkid}>
+                  &lt;Card style={{ marginBottom: "20px", width: "240px" }}>
+                    &lt;Card.Img
+                      variant="top  "
+                      src={`${teaPics[drink.drinkname]}`}
+                      alt={drink.drinkname}
+                      style={{ imageStyles }} // Adjust styling as needed
+                    />
+                    &lt;Card.Body>
+                      &lt;Card.Title
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        {
+                          &lt;TranslateComponent
+                            textToTranslate={drink.drinkname}
+                            targetLanguage={language}
+                          />
+                        }
+                      &lt;/Card.Title>
+                      &lt;Card.Text
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        ${drink.baseprice}
+                      &lt;/Card.Text>
+                    &lt;/Card.Body>
+                  &lt;/Card>
+                &lt;/div>
+              ))}
+              `
+            &lt;/div>
+
+            &lt;div style={buttonColumn4}>
+              {column4.map((drink) => (
+                &lt;div key={drink.drinkid}>
+                  &lt;Card style={{ marginBottom: "20px", width: "240px" }}>
+                    &lt;Card.Img
+                      variant="top  "
+                      src={`${teaPics[drink.drinkname]}`}
+                      alt={drink.drinkname}
+                      style={{ imageStyles }} // Adjust styling as needed
+                    />
+                    &lt;Card.Body>
+                      &lt;Card.Title
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        {
+                          &lt;TranslateComponent
+                            textToTranslate={drink.drinkname}
+                            targetLanguage={language}
+                          />
+                        }
+                      &lt;/Card.Title>
+                      &lt;Card.Text
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        ${drink.baseprice}
+                      &lt;/Card.Text>
+                    &lt;/Card.Body>
+                  &lt;/Card>
+                &lt;/div>
+              ))}
+              `
+            &lt;/div>
+
+            &lt;div style={buttonColumn5}>
+              {column5.map((drink) => (
+                &lt;div key={drink.drinkid}>
+                  &lt;Card style={{ marginBottom: "20px", width: "240px" }}>
+                    {teaPics[drink.drinkname] ? (
+                      &lt;Card.Img
+                        variant="top"
+                        src={`${teaPics[drink.drinkname]}`}
+                        alt={drink.drinkname}
+                        style={{ imageStyles }} // Adjust styling as needed
+                      />
+                    ) : (
+                      &lt;Card.Img
+                        variant="top"
+                        src={defaultDrink}
+                        alt={drink.drinkname}
+                        style={{ imageStyles }} // Adjust styling as needed
+                      />
+                    )}
+                    &lt;Card.Body>
+                      &lt;Card.Title
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        {
+                          &lt;TranslateComponent
+                            textToTranslate={drink.drinkname}
+                            targetLanguage={language}
+                          />
+                        }
+                      &lt;/Card.Title>
+                      &lt;Card.Text
+                        style={{
+                          textAlign: "center",
+                          fontSize: `${fontSize}rem`,
+                        }}
+                      >
+                        ${drink.baseprice}
+                      &lt;/Card.Text>
+                    &lt;/Card.Body>
+                  &lt;/Card>
+                &lt;/div>
+              ))}
+            &lt;/div>
+          &lt;/div>
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default MenuBoard;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Components/CustomerOrders/Receipt.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Components/CustomerOrders/Receipt.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module PurchaseComplete */
+
+import React, { useContext, useState, useEffect } from 'react';
+import SideBar from './SideBar'; 
+import OrderSummary from './OrderSummary';
+import { OrderContext } from './OrderContext';
+import TranslateComponent from '../TopNavBar/Translate';
+import { useLanguage } from '../TopNavBar/LanguageContext';
+import CustomerModal from './AddCustomer';
+import { FontSizeContext } from '../FontSizing/FontSizeContext';
+
+/**
+ * Styles for the container displaying the receipt and checkout button.
+ * @type {Object}
+ */
+const receiptContainer = {
+  display: 'flex',
+  flexDirection: 'row',
+  marginTop: '40px',
+};
+
+/**
+ * Styles for the receipt column.
+ * @type {Object}
+ */
+const receiptColumn = {
+  display: 'flex',
+  flexDirection: 'column',
+  margin: '5em auto',
+  marginLeft: '350px'
+};
+
+/**
+ * Styles for the total amount section in the receipt.
+ * @type {Object}
+ */
+const totalAmountStyle = {
+  fontWeight: 'bold',
+  marginTop: '20px',
+};
+
+/**
+ * React component for displaying the receipt and handling the checkout process.
+ *
+ * @component
+ * @returns {JSX.Element} The ReceiptPage component.
+ */
+const ReceiptPage = () => {
+
+  /**
+   * State to manage the visibility of the customer information modal.
+   * @type {boolean}
+   */
+  const [showModal, setShowModal] = useState(false);
+
+  /**
+   * State to store the total amount of the order.
+   * @type {number}
+   */
+  const [totalAmount, setTotalAmount] = useState(0);
+
+  /**
+   * Context hook to access the order data.
+   * @type {Object}
+   */
+  const { order } = useContext(OrderContext);
+
+  /**
+   * Context hook to access the font size preference.
+   * @type {Object}
+   */
+  const { fontSize } = useContext(FontSizeContext);
+  
+  /**
+   * The language context to determine the current language.
+   * @type {Object}
+   */
+  const { language } = useLanguage();
+
+  /**
+   * Styles for the checkout button.
+   * @type {Object}
+   */
+  const checkoutButton = {
+    display: 'flex',
+    padding: '10px 10px',
+    width: '150px',
+    position: 'relative',
+    zIndex: '1',
+    marginBottom: '40px',
+    marginLeft: 'auto',
+    marginRight: '30px',
+    justifyContent: 'center', // Center the text horizontally
+    alignItems: 'center', // Center the text vertically
+    fontSize: `${fontSize}rem`,
+  };
+
+  /**
+   * Handles the click event on the checkout button and shows the customer information modal.
+   * @memberof module:Receipt
+   */
+  const handleConfirmPurchaseClick = () => {
+    setShowModal(true);
+  }
+
+  /**
+   * Calculates the total price of the order.
+   *
+   * @memberof module:Receipt
+   * @returns {number} The total price of the order.
+   */
+  const calculateTotalPriceOfOrder = () => {
+    let total = 0;
+    order.forEach(item => {
+      const toppingsTotalPrice = item.toppings.reduce((total, topping) => total + topping.toppingprice, 0);
+      const totalPrice = item.drink.baseprice + toppingsTotalPrice;
+      total += parseFloat(totalPrice);
+    });
+    return total;
+  };
+
+  /**
+   * Calculates the subtotal and tax amount, updates the total amount state.
+   */
+  const subTotal = calculateTotalPriceOfOrder();
+  const taxRate = 0.1; // 10% tax rate
+  const taxAmount = subTotal * taxRate;
+
+  /**
+   * Recalculates the total amount when the order changes.
+   * @memberof module:Receipt
+   */
+  useEffect(() => {
+    setTotalAmount(subTotal + taxAmount);
+  }, );
+
+  /**
+   * Renders the ReceiptPage component.
+   *
+   * @returns {JSX.Element} The rendered JSX element.
+   */
+  return (
+    &lt;div>
+      &lt;div style={receiptContainer}>
+        &lt;div>
+          &lt;SideBar />
+        &lt;/div>
+        &lt;div style={receiptColumn}>
+          &lt;h1>&lt;TranslateComponent textToTranslate = {"Receipt: "} targetLanguage = {language} />&lt;/h1>
+          &lt;p style={{ fontSize: `${fontSize}rem` }}>&lt;OrderSummary>&lt;/OrderSummary>&lt;/p>
+          &lt;div style={totalAmountStyle}>
+            &lt;h4 style={{ fontSize: `${fontSize}rem` }}>&lt;TranslateComponent textToTranslate = {"Subtotal: "} targetLanguage = {language} /> ${subTotal.toFixed(2)}&lt;/h4>
+            &lt;h4 style={{ fontSize: `${fontSize}rem` }}>&lt;TranslateComponent textToTranslate = {"Tax "} targetLanguage = {language} /> (10%): ${taxAmount.toFixed(2)} &lt;/h4>
+            &lt;h4 style={{ fontSize: `${fontSize}rem` }}>&lt;TranslateComponent textToTranslate = {"Total: "} targetLanguage = {language} /> ${totalAmount.toFixed(2)}&lt;/h4>
+          &lt;/div>
+        &lt;/div>
+      &lt;/div>
+      &lt;button disabled={order.length === 0} style={checkoutButton} className="btn btn-outline-secondary" onClick = {handleConfirmPurchaseClick} >
+        &lt;TranslateComponent textToTranslate = {"Confirm Purchase"} targetLanguage = {language} />&lt;/button>
+        {showModal &amp;&amp; (
+          &lt;CustomerModal
+          show = {showModal}
+          handleClose = {() => setShowModal(false)}
+          totalAmount = {totalAmount}
+          />
+        )}
+    &lt;/div>
+  );
+};
+
+export default ReceiptPage;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

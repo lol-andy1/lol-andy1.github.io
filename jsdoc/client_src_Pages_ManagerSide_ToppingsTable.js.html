@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Pages/ManagerSide/ToppingsTable.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Pages/ManagerSide/ToppingsTable.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module ToppingsTable */
+
+import React, { Fragment, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+/**
+ * Component for managing toppings, including adding, deleting, sorting, and changing prices.
+ * @returns {JSX.Element} The rendered toppings management page.
+ * @memberof module:ToppingsTable
+ */
+function Toppings() {
+  const [toppings, setToppings] = useState([]);
+  const [toppingName, setToppingName] = useState("");
+  const [toppingPrice, setToppingPrice] = useState("");
+  const [sortBy, setSortBy] = useState("toppingid");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  /**
+   * Fetches the list of toppings from the server.
+   * @returns {Promise&lt;void>} A promise that resolves when the fetch is complete.
+   * @memberof module:ToppingsTable
+   */
+  const getToppings = async () => {
+    try {
+      const response = await fetch("https://kungfuteaserver09r.onrender.com/getToppings");
+      const jsonData = await response.json();
+      setToppings(jsonData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  /**
+   * Handles the submission of a new topping.
+   * @param {Event} e - The form submission event.
+   * @returns {Promise&lt;void>} A promise that resolves when the new topping is added.
+   * @memberof module:ToppingsTable
+   */
+  const handleNewTopping = async (e) => {
+    e.preventDefault();
+    try {
+        const body = {toppingName, toppingPrice};
+        const response = await fetch("https://kungfuteaserver09r.onrender.com/newTopping", {
+            method: "POST",
+            headers: { "Content-Type": "application/json"},
+            body: JSON.stringify(body)
+        });
+        if (response.status === 400){
+            setToppingName("");
+            setToppingPrice("");
+            throw new Error("Invalid Arguments")
+        }
+        else{
+            getToppings();
+            setToppingName("");
+            setToppingPrice("");
+        }
+    } catch (err) {
+        window.alert(err.message);
+    }
+  }
+
+  /**
+   * Handles the deletion of a topping.
+   * @param {Event} e - The click event.
+   * @param {number} toppingId - The ID of the topping to be deleted.
+   * @returns {Promise&lt;void>} A promise that resolves when the topping is deleted.
+   * @memberof module:ToppingsTable
+   */
+  const handleDelete = async (e, toppingId) => {
+    e.preventDefault();
+    const confirm = window.confirm("Are you sure you want to delete topping #" + toppingId);
+    if (confirm){
+      try {
+          await fetch("https://kungfuteaserver09r.onrender.com/deleteTopping/"+toppingId, {
+              method: "DELETE",
+          });
+          getToppings();
+      } catch (err) {
+          console.error(err.message);
+      }
+    }   
+  }
+
+  /**
+   * Handles the sorting of toppings based on the selected column.
+   * @param {string} column - The column to sort by.
+   * @memberof module:ToppingsTable
+   */
+  const handleSort = (column) => {
+    // Toggle sortOrder if the same column is clicked again
+    if (column === sortBy) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+  };  
+
+  /**
+   * Handles the change of topping price.
+   * @param {Event} e - The form submission event.
+   * @param {number} toppingId - The ID of the topping to change the price for.
+   * @returns {Promise&lt;void>} A promise that resolves when the price is changed.
+   * @memberof module:ToppingsTable
+   */
+  const handleChangePrice = async (e, toppingId) => {
+    e.preventDefault();
+    const amount = e.target.elements.userInput.value
+    try {
+        const body = {toppingId, amount};
+        const response  = await fetch("https://kungfuteaserver09r.onrender.com/changeToppingPrice", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json"},
+            body: JSON.stringify(body)
+        });
+        if (response.status === 400){
+            e.target.elements.userInput.value = "";
+            throw new Error("Invalid Arguments")
+        }
+        else{
+            getToppings();
+            e.target.elements.userInput.value = "";
+        }
+    } catch (err) {
+        window.alert(err.message);
+    }
+  }
+
+  useEffect(() => {
+    getToppings();
+  }, [sortBy, sortOrder]);
+
+  // Inside the useEffect block
+  /**
+   * Sorts the toppings based on the selected sort column and order.
+   * @memberof module:ToppingsTable
+   */
+  const sortedToppings = [...toppings].sort((a, b) => {
+    if (sortBy === "toppingname") {
+      // String sorting logic for toppingname
+      const compareValue = a[sortBy].localeCompare(b[sortBy]);
+      return sortOrder === "asc" ? compareValue : -compareValue;
+    } else {
+      // Numeric sorting logic for other columns
+      const compareValue = a[sortBy] - b[sortBy];
+      return sortOrder === "asc" ? compareValue : -compareValue;
+    }
+  });
+
+  return (
+    &lt;Fragment>
+      &lt;div className="row mb-2 w-100" style={{ marginTop: "6rem" }}>
+        &lt;div className="col-2 dropdown text-start ps-4">
+          &lt;Link to="/managerHome" className="btn btn-outline-primary me-2">
+            Back
+          &lt;/Link>
+          &lt;button
+            data-bs-toggle="dropdown"
+            type="button"
+            className="btn btn-outline-primary dropdown-toggle"
+          >
+            Sort By
+          &lt;/button>
+          &lt;ul className="dropdown-menu">
+            &lt;li
+              onClick={() => handleSort("toppingid")}
+              className="dropdown-item"
+            >
+              Topping Id
+            &lt;/li>
+            &lt;li
+              onClick={() => handleSort("toppingname")}
+              className="dropdown-item"
+            >
+              Topping Name
+            &lt;/li>
+            &lt;li onClick={() => handleSort("itemid")} className="dropdown-item">
+              Item ID
+            &lt;/li>
+            &lt;li
+              onClick={() => handleSort("toppingprice")}
+              className="dropdown-item"
+            >
+              Base Price
+            &lt;/li>
+          &lt;/ul>
+        &lt;/div>
+        &lt;form className="col-9 text-end" onSubmit={handleNewTopping}>
+                &lt;input className="form-control-sm" onChange={e => setToppingName(e.target.value)} value={toppingName} placeholder="Topping Name" />
+                &lt;input className="form-control-sm" onChange={e => setToppingPrice(e.target.value)} value={toppingPrice} placeholder="Price" />
+                &lt;button type="submit" className="btn btn-outline-success btn-sm">Add New Topping&lt;/button>
+        &lt;/form>
+      &lt;/div>
+
+      &lt;table className="table-container overflow-y-scroll mx-5">
+        &lt;thead>
+          &lt;tr>
+            &lt;th onClick={() => handleSort("toppingid")}>Topping Id&lt;/th>
+            &lt;th onClick={() => handleSort("toppingname")}>Topping Name&lt;/th>
+            &lt;th onClick={() => handleSort("itemid")}>Item ID&lt;/th>
+            &lt;th onClick={() => handleSort("toppingprice")}>Base Price&lt;/th>
+            &lt;th>Actions&lt;/th>
+          &lt;/tr>
+        &lt;/thead>
+        &lt;tbody>
+          {sortedToppings.map((topping) => (
+            &lt;tr key={topping.toppingid}>
+              &lt;td>{topping.toppingid}&lt;/td>
+              &lt;td>{String(topping.toppingname)}&lt;/td>
+              &lt;td>{topping.itemid}&lt;/td>
+              &lt;td>{topping.toppingprice}&lt;/td>
+              &lt;td className='w-25'>
+                &lt;form className="d-inline-block w-50" autoComplete="off" onSubmit={(e) => handleChangePrice(e, topping.toppingid)}>
+                    &lt;input name="userInput" className="form-control-sm w-25 mx-2" placeholder="0" />
+                    &lt;button type="submit" className="btn btn-outline-success btn-sm">New Price&lt;/button>
+                &lt;/form> 
+                &lt;button className="btn btn-outline-danger btn-sm" onClick={(e) => handleDelete(e, topping.toppingid)}>Delete&lt;/button>
+              &lt;/td>
+            &lt;/tr>
+          ))}
+        &lt;/tbody>
+      &lt;/table>
+    &lt;/Fragment>
+  );
+}
+
+export default Toppings;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

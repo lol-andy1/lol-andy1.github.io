@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Components/CashierOrders/PaymentModalCashier.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Components/CashierOrders/PaymentModalCashier.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module PaymentModalCashier
+ */
+import React, { useState, useContext } from "react";
+import { Modal, Button, Form } from 'react-bootstrap';
+import { OrderContextCashier } from "./OrderContextCashier";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useLanguage } from "../TopNavBar/LanguageContext";
+import TranslateComponent from '../TopNavBar/Translate';
+
+/**
+ * Payment modal for processing transactions in the cashier system.
+ * @param {Object} props - Props for controlling the modal
+ * @param {boolean} props.show - Flag to control the visibility of the modal
+ * @param {Function} props.handleClose - Function to close the modal
+ * @param {Object} props.paymentInfo - Information related to the payment
+ * @param {number} props.totalAmount - Total amount for the transaction
+ * @param {Object} props.customerInfo - Information related to the customer
+ * @returns {JSX.Element} - PaymentModalCashier component
+ * @memberof module:PaymentModalCashier
+ */
+const PaymentModalCashier = ({ show, handleClose, paymentInfo, totalAmount, customerInfo }) => {
+    const [ paymentMethod, setPaymentMethod ] = useState('');
+    const { orderCashier, setOrderCashier } = useContext(OrderContextCashier);
+    const { language } = useLanguage();
+
+    /**
+     * Adds a new customer or retrieves an existing customer based on the phone number.
+     * @async
+     * @function addCustomer
+     * @returns {Promise&lt;number>} - Customer ID
+     * @memberof module:PaymentModalCashier
+     */
+    const addCustomer = async () => {
+        try {
+        const phonenumber = customerInfo.phonenumber;
+        const response = await fetch(`https://kungfuteaserver09r.onrender.com/getCustomerByphonenumber?phonenumber=${phonenumber}`);
+        const resData = await response.json();
+        
+        // Add a customer if they are not in the database or if they do not provide a phone number
+        if (resData.customerid == null || phonenumber == "") {
+            const newCustomerResponse = await fetch("https://kungfuteaserver09r.onrender.com/addNewCustomer", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    firstname: customerInfo.firstname,
+                    lastname: customerInfo.lastname,
+                    phonenumber: customerInfo.phonenumber,
+                    
+                })
+            });
+
+            const newCustomerData = await newCustomerResponse.json();
+            return newCustomerData.customerid;
+        }
+        else{
+            return resData.customerid;
+        }
+        
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const navigate = useNavigate();
+
+    /**
+     * Processes the purchase, updating the database with order information.
+     * @async
+     * @param {number} customerid - ID of the customer
+     * @function processPurchase
+     * @memberof module:PaymentModalCashier
+     */
+    const processPurchase = async(customerid) => {
+        console.log('Purchase processing...')
+        try {
+            const response = await axios.post("https://kungfuteaserver09r.onrender.com/ReceiptCashier", { orderCashier, totalAmount, customerid});
+            console.log("Purchase processed:", response.data);
+        } catch (error) {
+            console.error("Error processing purchase", error);
+        }
+    };
+
+    /**
+     * Handles the confirmation of payment processing.
+     * @async
+     * @function handleConfirmPayment
+     * @memberof module:PaymentModalCashier
+     */
+    const handleConfirmPayment = async () => {
+        try {
+            const customerid = await addCustomer(); // updates customer table
+            await processPurchase(customerid); // will update rest of DB
+            handleClose();
+            setOrderCashier([]);
+            navigate('/PurchaseCompleteCashier');
+            // await addItem();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    return (
+        &lt;Modal show={show} onHide={handleClose}>
+            &lt;Modal.Header closeButton>
+                &lt;Modal.Title>&lt;TranslateComponent textToTranslate = {"Payment"} targetLanguage = {language} />&lt;/Modal.Title>
+            &lt;/Modal.Header>
+            &lt;Modal.Body>
+                &lt;Form.Group controlId="paymentMethod">
+                    &lt;Form.Label>&lt;TranslateComponent textToTranslate = {"Select Payment Method:"} targetLanguage = {language} />&lt;/Form.Label>
+                    &lt;Form.Control as="select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                        &lt;option disabled value="">&lt;TranslateComponent textToTranslate = {"Select Payment Method"} targetLanguage = {language} />&lt;/option>
+                        &lt;option value="creditCard">&lt;TranslateComponent textToTranslate = {"Credit Card"} targetLanguage = {language} />&lt;/option>
+                        &lt;option value="debitCard">&lt;TranslateComponent textToTranslate = {"Debit Card"} targetLanguage = {language} />&lt;/option>
+                        &lt;option value="cash">&lt;TranslateComponent textToTranslate = {"Cash"} targetLanguage = {language} />&lt;/option>
+                    &lt;/Form.Control>
+                &lt;/Form.Group>
+            &lt;/Modal.Body>
+            &lt;Modal.Footer>
+                &lt;Button variant="secondary" onClick={handleClose}>
+                    &lt;TranslateComponent textToTranslate = {"Close"} targetLanguage = {language} />
+                &lt;/Button>
+                &lt;Button disabled={paymentMethod === ''} variant="primary" onClick={handleConfirmPayment}>
+                    &lt;TranslateComponent textToTranslate = {"Confirm Payment"} targetLanguage = {language} />
+                &lt;/Button>
+            &lt;/Modal.Footer>
+        &lt;/Modal>
+    );
+};
+
+export default PaymentModalCashier;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

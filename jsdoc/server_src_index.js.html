@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server/src/index.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server/src/index.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module  Index */
+const express = require("express");
+const cors = require("cors");
+const pool = require("./db");
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const employee = require("./routes/employee"); app.use(employee);
+const inventory = require("./routes/inventory"); app.use(inventory);
+const drinks = require("./routes/drinks"); app.use(drinks);
+const toppings = require("./routes/toppings"); app.use(toppings);
+const purchase = require("./routes/purchase"); app.use(purchase);
+const excess_report = require("./routes/excess_report"); app.use(excess_report);
+const popularDrink = require("./routes/popularDrink"); app.use(popularDrink);
+
+app.listen(4000, () => {
+    console.log("server started")
+});
+
+/**
+ * Retrieves order history details including customer information and order items.
+ * @name GET/getOrderHistory
+ * @function
+ * @memberof module:Index
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object[]} - Order history details.
+ */
+app.get("/getOrderHistory", async(req, res) => {
+    try{
+        const orderHistoryQuery = await pool.query("SELECT o.orderid, c.firstname, c.lastname, " +
+            "o.totalprice AS totalprice, " +
+            "o.order_dt AS order_dt, " +
+            "STRING_AGG(DISTINCT drinkinformation, '\n') AS orderItems " +
+            "FROM orders o " +
+            "JOIN customer c ON o.customerid = c.customerid " +
+            
+            "JOIN (SELECT od.orderid, " +
+            "       CASE " +
+            "           WHEN ARRAY_LENGTH(od.toppingid_vector, 1) IS NULL THEN od.drinksize || ' ' || d.drinkname " +
+            "           ELSE od.drinksize || ' ' || d.drinkname || ' with ' || STRING_AGG(t.toppingname, ', ') " +
+            "       END AS drinkinformation " +
+            
+            "FROM orderdetails od " +
+            "JOIN drink d ON od.drinkid = d.drinkid " +
+            "LEFT JOIN unnest(od.toppingid_vector) tid ON true " +
+            "LEFT JOIN toppings t ON tid = t.toppingid " +
+            "GROUP BY od.orderid, od.drinksize, d.drinkname, od.toppingid_vector) AS drinkdetails ON o.orderid = drinkdetails.orderid " +
+            "GROUP BY o.orderid, c.firstname, c.lastname, o.totalprice, o.order_dt ORDER BY orderid DESC");
+        res.json(orderHistoryQuery.rows);
+
+    }
+    catch(e){
+        console.error(e.message);
+    }
+
+    
+});
+
+/**
+ * Retrieves the count of orders.
+ * @name GET/getOrdersRowCount
+ * @function
+ * @memberof module:Index
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+app.get("/getOrdersRowCount", async(req, res) => {
+    try{
+        const result = await pool.query('SELECT COUNT(*) FROM orders');
+    }
+    catch(e){
+        console.error(e.message);
+    }
+});
+
+/**
+ * Retrieves the count of customers.
+ * @name GET/getCustomersRowCount
+ * @function
+ * @memberof module:Index
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
+app.get("/getCustomersRowCount", async(req, res) => {
+    try{
+        const result = await pool.query('SELECT COUNT(*) FROM customer');
+    }
+    catch(e){
+        console.error(e.message);
+    }
+});
+
+/**
+ * Retrieves a customer by phone number.
+ * @name GET/getCustomerByPhoneNumber
+ * @function
+ * @memberof module:Index
+ * @param {Object} req - Express request object containing 'phonenumber'.
+ * @param {Object} res - Express response object.
+ */
+app.get("/getCustomerByPhoneNumber", async(req, res) => {
+    try{
+        const phoneNumber = req.query.phonenumber;
+        const result = await pool.query('SELECT customerid FROM customer WHERE phonenumber = $1', [phoneNumber]);
+
+        if(result.rows.length > 0){
+            const customerId = result.rows[0].customerid;
+            res.json({customerid: customerId});
+        }
+        else{
+            res.json({customerid: null});
+        }
+    }
+    catch(e){
+        console.error(e.message);
+    }
+});
+
+/**
+ * Adds a new customer to the database.
+ * @name POST/addNewCustomer
+ * @function
+ * @memberof module:Index
+ * @param {Object} req - Express request object containing 'firstname', 'lastname', 'phonenumber'.
+ * @param {Object} res - Express response object.
+ */
+app.post('/addNewCustomer', async (req, res) => {
+    const { firstname, lastname, phonenumber } = req.body;
+    const numItems = await pool.query("SELECT MAX(customerid) FROM customer");
+    const customerid = numItems.rows[0].max + 1;
+
+    try {
+        const newCustomer = await pool.query(
+            'INSERT INTO customer (customerid, firstname, lastname, phonenumber) VALUES ($1, $2, $3, $4)',
+            [customerid, firstname, lastname, phonenumber]
+        );
+        res.json({customerid: customerid});
+        res.status(201).json();
+    } catch (error) {
+        res.status(400).json();
+        console.error(error);
+    }
+});
+
+/**
+ * Adds a new order to the database.
+ * @name POST/addOrder
+ * @function
+ * @memberof module:Index
+ * @param {Object} req - Express request object containing 'customerid', 'totalprice', 'order_dt'.
+ * @param {Object} res - Express response object.
+ */
+app.post('/addOrder', async (req, res) => {
+    const { customerid, totalprice, order_dt } = req.body;
+
+    const numItems2 = await pool.query("SELECT MAX(orderid) FROM orders");
+    const orderid = numItems2.rows[0].max + 1;
+
+    try {
+        const newOrder = await pool.query(
+            'INSERT INTO orders (orderid, customerid, totalprice, order_dt) VALUES ($1, $2, $3, $4)',
+            [orderid, customerid, totalprice, order_dt]
+        );
+
+        res.status(201).json();
+    } catch (error) {
+        res.status(400).json();
+        console.error(error);
+    }
+});
+
+/**
+ * Adds order details to the database.
+ * @name POST/addOrderDetails
+ * @function
+ * @memberof module:Index
+ * @param {Object} req - Express request object containing 'drinkid', 'toppingid_vector', 'drinksize', 'price'.
+ * @param {Object} res - Express response object.
+ */
+app.post('/addOrderDetails', async (req, res) => {
+    const {drinkid, toppingid_vector, drinksize, price } = req.body;
+
+    const numItems = await pool.query("SELECT MAX(orderid) FROM orders");
+    const orderid = numItems.rows[0].max;
+
+    const numItems2 = await pool.query("SELECT MAX(orderitemid) FROM orderdetails");
+    const orderitemid = numItems2.rows[0].max + 1;
+
+    try {
+        const query = `
+            INSERT INTO orderdetails (orderid, drinkid, toppingid_vector, drinksize, orderitemid, price)
+            VALUES ($1, $2, $3, $4, $5, $6)
+        `;
+        await pool.query(query, [orderid, drinkid, toppingid_vector, drinksize, orderitemid, price]);
+
+        res.status(201).json({ message: 'Order details added successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+let storedSelectedDate1 = null;
+let storedSelectedDate2 = '2023-12-03';
+let storedSelectedDrink = 'kung fu black tea';
+
+/**
+ * Executes a query to retrieve sales report data.
+ * @function
+ * @param {string} selectedDrink - The selected drink.
+ * @param {string} selectedDate1 - The first selected date.
+ * @param {string} selectedDate2 - The second selected date.
+ * @returns {Object[]} - Sales report data.
+ */
+const executeQuery = async (selectedDrink, selectedDate1, selectedDate2) => {
+    try {
+        const salesReport = await pool.query(
+            "SELECT o.orderid, c.firstname, c.lastname, " +
+            "o.totalprice AS totalprice, " +
+            "o.order_dt AS order_dt, " +
+            "STRING_AGG(DISTINCT drinkinformation, ',\n') AS orderItems " +
+            "FROM orders o " +
+            "JOIN customer c ON o.customerid = c.customerid " +
+            "JOIN (SELECT od.orderid, " +
+            "       CASE " +
+            "           WHEN ARRAY_LENGTH(od.toppingid_vector, 1) IS NULL THEN od.drinksize || ' ' || d.drinkname " +
+            "           ELSE od.drinksize || ' ' || d.drinkname || ' with ' || STRING_AGG(t.toppingname, ', ') " +
+            "       END AS drinkinformation " +
+            "FROM orderdetails od " +
+            "JOIN drink d ON od.drinkid = d.drinkid " +
+            "LEFT JOIN unnest(od.toppingid_vector) tid ON true " +
+            "LEFT JOIN toppings t ON tid = t.toppingid " +
+            "GROUP BY od.orderid, od.toppingid_vector, od.drinksize, d.drinkname ) AS drinkdetails ON o.orderid = drinkdetails.orderid "+
+            "WHERE EXISTS ( SELECT 1 FROM orderdetails od JOIN drink d ON od.drinkid = d.drinkid "+
+            "WHERE od.orderid = o.orderid AND d.drinkname = $1) "+
+            "and o.order_dt >= $2 AND o.order_dt &lt;= $3 "+
+            "GROUP BY o.orderid, c.firstname, c.lastname, o.totalprice, o.order_dt ORDER BY orderid DESC",
+            [selectedDrink, selectedDate1, selectedDate2]
+        );
+        return salesReport.rows;
+    } catch (error) {
+        throw new Error("Failed to fetch sales report: " + error.message);
+    }
+};
+
+  
+  app.get("/getSalesReport", async (req, res) => {
+    try {
+      //selectedDrink, selectedDate1, selectedDate2
+      console.log('Reached the get sales report endpoint');
+      const salesReport = await executeQuery(storedSelectedDrink, storedSelectedDate1, storedSelectedDate2);
+      res.status(200).json(salesReport);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ error: "Server Error" });
+    }
+  });
+  
+
+app.post("/setSalesReportData", async (req, res) => {
+    try {
+      const { selectedDate1, selectedDate2, selectedDrink } = req.body;
+      console.log('Reached the set sales report endpoint');
+      storedSelectedDate1 = selectedDate1;
+      storedSelectedDate2 = selectedDate2;
+      storedSelectedDrink = selectedDrink;
+      res.status(200).json({ message: "Selected data saved successfully" });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ error: "Server Error" });
+    }
+  });
+
+let storedSelectedDate3 = null;
+let storedSelectedDate4 = '2023-12-03';
+
+/**
+ * Executes a query to retrieve sales together report data.
+ * @function
+ * @param {string} selectedDate3 - The third selected date.
+ * @param {string} selectedDate4 - The fourth selected date.
+ * @returns {Object[]} - Sales together report data.
+ */
+  const executeQuery2 = async (selectedDate3, selectedDate4) => {
+    try {
+        const salesTogether = await pool.query(
+            "SELECT d1.drinkname AS item1, d2.drinkname AS item2, COUNT(*) AS frequency FROM orderdetails oi1 JOIN orderdetails oi2 ON oi1.orderid = oi2.orderid AND oi1.orderitemid &lt; oi2.orderitemid JOIN drink d1 ON oi1.drinkid = d1.drinkid JOIN drink d2 ON oi2.drinkid = d2.drinkid JOIN orders o ON oi1.orderid = o.orderid WHERE oi1.drinkid &lt; oi2.drinkid AND o.order_dt BETWEEN $1 AND $2 GROUP BY d1.drinkname, d2.drinkname ORDER BY frequency DESC",
+            [selectedDate3, selectedDate4]
+        );
+        return salesTogether.rows;
+    } catch (error) {
+        throw new Error("Failed to fetch sales together report: " + error.message);
+    }
+};
+
+app.get("/getSalesTogether", async (req, res) => {
+    try {
+      //selectedDrink, selectedDate1, selectedDate2
+      console.log('Reached the get sales together endpoint');
+      const salesTogether = await executeQuery2(storedSelectedDate3, storedSelectedDate4);
+      res.status(200).json(salesTogether);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ error: "Server Error" });
+    }
+  });
+
+  app.post("/setSalesTogether", async (req, res) => {
+    try {
+      const { selectedDate3, selectedDate4 } = req.body;
+      console.log('Reached the set sales together endpoint');
+      storedSelectedDate3 = selectedDate3;
+      storedSelectedDate4 = selectedDate4;
+      res.status(200).json({ message: "Selected data saved successfully" });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ error: "Server Error" });
+    }
+  });</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

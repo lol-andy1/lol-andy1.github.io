@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Components/CashierOrders/SideBarCashier.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Components/CashierOrders/SideBarCashier.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module SideBar
+ */
+import { Sidebar } from 'flowbite-react';
+import { AiFillHome } from 'react-icons/ai';
+import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { OrderContextCashier } from './OrderContextCashier';
+import { Button } from 'react-bootstrap';
+import OrderSummary from './OrderSummaryCashier';
+
+const sidebarContainer = {
+  display: 'flex',
+  flexDirection: 'row', // Set the direction to column
+  height: '100vh',
+};
+
+const sidebarWithShadow = {
+  boxShadow: '10px 0 10px rgba(0, 0, 0, 0.1)', // Add a box shadow to the right side of the sidebar
+};
+
+const container = {
+  alignItems: 'left',
+  display: 'flex', // Add this to make the icons display in a column
+  flexDirection: 'column', // Set the direction to column
+  width: '40vh'
+};
+
+const homeIconStyle = {
+  fontSize: '4rem', // Increase the font size
+  // Add space below the icon
+  margin: '0 auto',
+};
+
+const horizontalLine = {
+  borderBottom: '1px solid #000', // Customize the border properties as needed
+  width: '100%', // Set the width to 100% to create a horizontal line
+  marginBottom: '40px',
+  marginTop: '40px',
+};
+
+const homeText = {
+  fontSize: '15px',
+  marginBottom: '40px', 
+  margin: '0 auto',
+};
+
+const receiptContainer = {
+  overflowY: 'scroll', 
+  maxHeight: '17em', 
+  width: '100%', 
+  wordWrap: 'break-word'
+};
+
+/**
+ * Component for the sidebar used in the Cashier section.
+ * @returns {JSX.Element} - SideBar component
+ * @memberof module:SideBar
+ */
+function SideBar() {
+  // const currentPage = window.location.pathname
+  // console.log(currentPage)
+
+  // to hold the order and its contents
+  const { orderCashier, setOrderCashier } = useContext(OrderContextCashier);
+  // console.log(order);
+
+  /**
+   * Resets the current order by setting the orderCashier state to an empty array.
+   * @function handleReset
+   * @memberof module:SideBar
+   */
+  const handleReset = () => {
+    setOrderCashier([]); 
+  };
+
+  return (
+    &lt;div className= "position-fixed text-center">
+      &lt;div style={sidebarContainer}>
+        &lt;Sidebar style={sidebarWithShadow}>
+          &lt;div style={container}>
+            &lt;Link to='/cashierHome' style={homeIconStyle}>&lt;AiFillHome  />&lt;/Link>
+            &lt;p style={homeText}>Home&lt;/p>
+            {/*&lt;Link to='/cashierHome' style={homeIconStyle}>&lt;IoArrowBackCircle style={homeIconStyle}>&lt;/IoArrowBackCircle>&lt;/Link>
+            &lt;p style={homeText}>Back&lt;/p>*/}
+            &lt;Link to={orderCashier.length > 0 ? '/ReceiptCashier' : '#'} className=" mt-2 btn btn-success" >Checkout&lt;/Link>
+            &lt;div style={horizontalLine}>&lt;/div> {/* Horizontal line */}
+            &lt;h1>Current Order&lt;/h1>
+            &lt;OrderSummary>&lt;/OrderSummary>
+            &lt;Button onClick={handleReset}>Reset Order&lt;/Button>
+          &lt;/div>
+        &lt;/Sidebar>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+export default SideBar;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

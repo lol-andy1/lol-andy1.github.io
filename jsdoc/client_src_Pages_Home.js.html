@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Pages/Home.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Pages/Home.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module Home */
+
+import backgroundImg from "../Images/homeBackground.jpg";
+import banner from "../Images/kftbanner.jpg";
+import React, { useContext } from 'react';
+import { Link } from "react-router-dom";
+import TranslateComponent from "../Components/TopNavBar/Translate";
+import { useLanguage } from "../Components/TopNavBar/LanguageContext";
+import { FontSizeContext } from '../Components/FontSizing/FontSizeContext';
+
+const containerStyle = {
+    display: 'flex',
+    flexDirection: 'row', // Keep row to align background and content horizontally
+    height: '100vh',
+    overflow: 'hidden',
+}
+
+const backgroundStyle = {
+    width: '50%', // Set background width to 50% of the viewport width
+    backgroundImage: `url(${backgroundImg})`,
+    backgroundPosition: "center top 3rem",
+    position: 'relative',
+    // filter: 'brightness(1.3) contrast(1.2) saturate(1.2)',
+}
+
+
+const contentContainerStyle = {
+    flex: 1, // Take up remaining space
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center', // Center horizontally
+    justifyContent: 'center', // Center vertically
+}
+
+const bannerStyle = {
+    width: '30rem',
+    borderRadius: '1rem',
+    margin: '2rem', // Adjust the margin-bottom for spacing
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+}
+
+const orderButtonStyle = {
+    fontSize: '1rem',
+    margin: '1rem',
+}
+
+const loginButtonStyle = {
+    fontSize: '1rem',
+    alignSelf: 'flex-end', // Align to the bottom right
+    margin: '1rem', // Add margin to the right and bottom
+}
+
+/**
+ * Component for the Home page.
+ * @returns {JSX.Element} The rendered home page.
+ */
+const Home = () => {
+    const { language } = useLanguage();
+    const { fontSize } = useContext(FontSizeContext);
+
+    return (
+        &lt;div style={containerStyle}>
+            &lt;div style={{ ...backgroundStyle }}>
+                
+            &lt;/div>
+            &lt;div style={{ ...contentContainerStyle }}>
+                &lt;img src={banner} alt="banner" style={{ ...bannerStyle }} />
+                &lt;h3 style={{ ...orderButtonStyle, fontSize: `${fontSize}rem` }} >
+                    {&lt;TranslateComponent textToTranslate={'Welcome to Kung Fu Tea College Station!'} targetLanguage={language} />}
+                &lt;/h3>
+                &lt;Link to="/Order" className="btn btn-dark btn-sm rounded-pill" style={{ ...orderButtonStyle, fontSize: `${fontSize}rem` }}>
+                    &lt;TranslateComponent textToTranslate={'Order Now'} targetLanguage={language} />
+                &lt;/Link>
+                
+            &lt;/div>
+            &lt;Link to="/employeeLogin" className="btn btn-primary btn-sm" style={{ ...loginButtonStyle,fontSize: `${fontSize}rem` }}>
+                    {&lt;TranslateComponent textToTranslate={'Employee Login'} targetLanguage={language} />}
+            &lt;/Link>
+        &lt;/div>
+    );
+}
+
+export default Home;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/App.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/App.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module App */
+
+import React, { useState } from 'react';
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import HomeNav from "./Components/TopNavBar/HomeNav";
+import EmployeeNav from './Components/TopNavBar/EmployeeNav';
+import Home from "./Pages/Home";
+import EmployeeLogin from "./Pages/EmployeeLogin";
+import ManagerHome from "./Pages/ManagerSide/ManagerHome";
+import CashierHome from "./Pages/CashierHome";
+import MenuBoard from "./Components/MenuBoard/MenuBoard";
+
+import OrderLanding from "./Components/CustomerOrders/OrderLanding";
+import OrderHistory from "./Pages/ManagerSide/OrderHistory";
+import Toppings from "./Pages/ManagerSide/ToppingsTable";
+import Drinks from "./Pages/ManagerSide/DrinksScreen";
+import Inventory from "./Pages/ManagerSide/Inventory";
+import Weather from "./Pages/Api/Weather";
+import { FontSizeProvider } from './Components/FontSizing/FontSizeProvider';
+import Map from "./Pages/Api/Map";
+import SideBar from './Components/CustomerOrders/SideBar';
+import Classic from './Components/CustomerOrders/Drinks/Classic';
+import Milk from './Components/CustomerOrders/Drinks/Milk';
+import Seasonal from './Components/CustomerOrders/Drinks/Seasonal';
+import Punch from './Components/CustomerOrders/Drinks/Punch';
+import Yogurt from './Components/CustomerOrders/Drinks/Yogurt';
+import Receipt from './Components/CustomerOrders/Receipt';
+import ReceiptCashier from './Components/CashierOrders/ReceiptCashier';
+import ClassicCashier from './Components/CashierOrders/DrinksCashier/ClassicCashier';
+import SeasonalCashier from './Components/CashierOrders/DrinksCashier/SeasonalCashier';
+import MilkCashier from './Components/CashierOrders/DrinksCashier/MilkCashier';
+import PunchCashier from './Components/CashierOrders/DrinksCashier/PunchCashier';
+import YogurtCashier from './Components/CashierOrders/DrinksCashier/YogurtCashier';
+import PurchaseComplete from './Components/CustomerOrders/PurchaseComplete';
+import PurchaseCompleteCashier from './Components/CashierOrders/PurchaseCompleteCashier';
+import ExcessReport from './Pages/ManagerSide/ExcessReport';
+import PopularDrink from './Pages/ManagerSide/PopularDrink';
+import { OrderContext, useOrder } from './Components/CustomerOrders/OrderContext';
+import { OrderContextCashier, useOrderCashier } from './Components/CashierOrders/OrderContextCashier';
+import { LanguageProvider } from './Components/TopNavBar/LanguageContext';
+import SalesReport from './Pages/ManagerSide/SalesReport';
+import SalesTogether from './Pages/ManagerSide/SalesTogether';
+import RestockReport from './Pages/ManagerSide/RestockReport'
+
+/**
+ * Main application component that serves as the entry point for the React app.
+ * @returns {JSX.Element} The rendered App component.
+ */
+function App() {
+    //GOOGLE MAPS API KEYS + ADDRESS
+    const apiKey = 'AIzaSyBRsl6AJS9mMqSer6ttoL2QSwTxqiji3Jo';
+
+    /* LANGUAGE SETTING */
+    const savedLanguage = localStorage.getItem('language') || 'en';
+    const [language, setLanguage] = useState(savedLanguage);
+
+    /**
+     * Function to change the language between English and Spanish.
+     * @memberof module:App
+     */
+    const changeLanguage = () => {
+        const newLanguage = language === 'en' ? 'es' : 'en';
+        localStorage.setItem('language', newLanguage);
+        setLanguage(newLanguage);
+    };
+    /* LANGUAGE SETTING */
+
+    // The customer's order
+    const [order, setOrder] = useOrder();
+    const [orderCashier, setOrderCashier] = useOrderCashier();
+
+    return (
+        &lt;LanguageProvider>
+        &lt;OrderContextCashier.Provider value = {{orderCashier, setOrderCashier}}>
+        &lt;OrderContext.Provider value={{order, setOrder}}>
+            &lt;FontSizeProvider>
+                &lt;Router>
+                    &lt;Routes>
+                        &lt;Route path="/" element={&lt;>&lt;Home changeLanguage={changeLanguage} currentLanguage={language} /> &lt;HomeNav />&lt;/>} />
+                        &lt;Route path="employeeLogin" element={&lt;>&lt;EmployeeLogin />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="managerHome" element={&lt;>&lt;ManagerHome />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="cashierHome" element={&lt;>&lt;CashierHome />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="Menu" element={&lt;>&lt;MenuBoard />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path ="Weather" element = {&lt;>&lt;Weather />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="orderHistory" element={&lt;>&lt;OrderHistory />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="Toppings" element={&lt;>&lt;Toppings />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="Drinks" element={&lt;>&lt;Drinks />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="Inventory" element={&lt;>&lt;Inventory />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="SideBar" element={&lt;>&lt;SideBar />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="Order" element={&lt;>&lt;OrderLanding />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="Order/Classic" element={&lt;>&lt;Classic />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="Order/Milk" element={&lt;>&lt;Milk />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="Order/Punch" element={&lt;>&lt;Punch />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="Order/Yogurt" element={&lt;>&lt;Yogurt />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="Order/Seasonal" element={&lt;>&lt;Seasonal />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="cashierHome/ClassicCashier" element={&lt;>&lt;ClassicCashier />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="cashierHome/MilkCashier" element={&lt;>&lt;MilkCashier />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="cashierHome/PunchCashier" element={&lt;>&lt;EmployeeNav />&lt;PunchCashier />&lt;/>} />
+                        &lt;Route path="cashierHome/YogurtCashier" element={&lt;>&lt;YogurtCashier />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="cashierHome/SeasonalCashier" element={&lt;>&lt;SeasonalCashier />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="Map" element={&lt;>&lt;Map apiKey={apiKey} />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="Receipt" element={&lt;>&lt;Receipt />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="ReceiptCashier" element={&lt;>&lt;ReceiptCashier />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="PurchaseComplete" element={&lt;>&lt;PurchaseComplete />&lt;HomeNav />&lt;/>} />
+                        &lt;Route path="PurchaseCompleteCashier" element={&lt;>&lt;PurchaseCompleteCashier />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="ExcessReport" element={&lt;>&lt;ExcessReport />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path="PopularDrink" element={&lt;>&lt;PopularDrink />&lt;EmployeeNav />&lt;/>} />
+                        &lt;Route path = "SalesReport" element = {&lt;>&lt;SalesReport/>&lt;EmployeeNav />&lt;/>}/>
+                        &lt;Route path = "SalesTogether" element = {&lt;>&lt;SalesTogether/>&lt;EmployeeNav />&lt;/>}/>
+                        &lt;Route path = "RestockReport" element = {&lt;>&lt;RestockReport/>&lt;EmployeeNav />&lt;/>}/>
+                    &lt;/Routes>
+                &lt;/Router>
+            &lt;/FontSizeProvider>
+        &lt;/OrderContext.Provider>
+        &lt;/OrderContextCashier.Provider>
+        &lt;/LanguageProvider>
+    );
+}
+
+export default App;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

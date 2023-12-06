@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/Components/CustomerOrders/OrderLanding.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/Components/CustomerOrders/OrderLanding.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module OrderLanding */
+
+import React, { useContext } from "react";
+import { Button } from "react-bootstrap";
+import SideBar from "./SideBar"; // Update the import statement
+import ClassicImage from "../../Images/MenuCategoriesPics/classic.jpg";
+import MilkImage from "../../Images/MenuCategoriesPics/milktea.jpg";
+import PunchImage from "../../Images/MenuCategoriesPics/punch.jpg";
+import YogurtImage from "../../Images/MenuCategoriesPics/yogurt.jpg";
+import { Link } from "react-router-dom";
+import TranslateComponent from "../TopNavBar/Translate";
+import { useLanguage } from "../TopNavBar/LanguageContext";
+import { FontSizeContext } from '../FontSizing/FontSizeContext';
+
+/**
+ * React component for displaying the landing page for ordering products.
+ *
+ * @component
+ * @returns {JSX.Element} The OrderLanding component.
+ */
+const OrderLanding = () => {
+
+  /**
+   * The font size context to determine the current font size.
+   * @type {Object}
+   */
+  const { fontSize } = useContext(FontSizeContext);
+
+  /**
+   * Styles for the buttons.
+   * @type {Object}
+   */
+  const buttonStyles = {
+    boxShadow: "none",
+    fontSize: `${fontSize}rem`,
+    padding: "15px",
+    marginTop: "30px",
+    margin: "0px",
+    width: "200px", // Fixed width for uniform size
+  };
+
+  /**
+   * Styles for the product images.
+   * @type {Object}
+   */
+  const imageStyles = {
+    objectFit: "cover",
+    boxShadow: "0 0 20px rgba(0, 0, 0, 0.3)",
+    transition: "box-shadow 0.3s ease",
+  };
+
+  /**
+   * The language context to determine the current language.
+   * @type {Object}
+   */
+  const { language } = useLanguage();
+
+  /**
+   * Renders the OrderLanding component.
+   * @returns {JSX.Element} JSX representation of the component.
+   */
+  return (
+    &lt;div className="d-flex vh-100">
+      &lt;div className="mt-5">
+        &lt;SideBar />
+      &lt;/div>
+
+      &lt;div
+        className="text-center w-100"
+        style={{ marginTop: "5rem", marginLeft: "20%" }}
+      >
+        &lt;h1>
+          &lt;TranslateComponent
+            textToTranslate={"Products"}
+            targetLanguage={language}
+          />
+        &lt;/h1>
+        &lt;div className="row justify-content-center mt-4 mx-0">
+          &lt;div className="col-4">
+            &lt;Link to="./Classic">
+              &lt;img
+                src={ClassicImage}
+                style={imageStyles}
+                alt="Classic"
+                onMouseOver={(e) => {
+                  e.target.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)";
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.boxShadow = "0 0 20px rgba(0, 0, 0, 0.3)";
+                }}
+              />
+            &lt;/Link>
+          &lt;/div>
+          &lt;div className="col-4">
+            &lt;Link to="./Milk">
+              &lt;img
+                src={MilkImage}
+                style={imageStyles}
+                alt="Milk"
+                onMouseOver={(e) => {
+                  e.target.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)";
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.boxShadow = "0 0 20px rgba(0, 0, 0, 0.3)";
+                }}
+              />
+            &lt;/Link>
+          &lt;/div>
+        &lt;/div>
+        &lt;div className="row justify-content-center mt-5 mx-0">
+          &lt;div className="col-4">
+            &lt;Link to="./Punch">
+              &lt;img
+                src={PunchImage}
+                style={imageStyles}
+                alt="Punch"
+                onMouseOver={(e) => {
+                  e.target.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)";
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.boxShadow = "0 0 20px rgba(0, 0, 0, 0.3)";
+                }}
+              />
+            &lt;/Link>
+          &lt;/div>
+          &lt;div className="col-4">
+            &lt;Link to="./Yogurt">
+              &lt;img
+                src={YogurtImage}
+                style={imageStyles}
+                alt="Yogurt"
+                onMouseOver={(e) => {
+                  e.target.style.boxShadow = "0 0 30px rgba(0, 0, 0, 0.6)";
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.boxShadow = "0 0 20px rgba(0, 0, 0, 0.3)";
+                }}
+              />
+            &lt;/Link>
+          &lt;/div>
+        &lt;/div>
+        &lt;div className="row mt-3 mx-0">
+          &lt;Link to="./Seasonal" >
+              &lt;Button variant="primary" style={buttonStyles}>
+                &lt;TranslateComponent
+                  textToTranslate={"Seasonal"}
+                  targetLanguage={language}
+                />
+              &lt;/Button>
+          &lt;/Link>
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default OrderLanding;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-AddCustomer.html">AddCustomer</a></li><li><a href="module-App.html">App</a></li><li><a href="module-CashierHome.html">CashierHome</a></li><li><a href="module-CashierLogin.html">CashierLogin</a></li><li><a href="module-Classic.html">Classic</a></li><li><a href="module-ClassicCashier.html">ClassicCashier</a></li><li><a href="module-CurrentLanguageContext.html">CurrentLanguageContext</a></li><li><a href="module-CustomerModalCashier.html">CustomerModalCashier</a></li><li><a href="module-Drinks.html">Drinks</a></li><li><a href="module-DrinksRouter.html">DrinksRouter</a></li><li><a href="module-EmployeeLogin.html">EmployeeLogin</a></li><li><a href="module-EmployeeRouter.html">EmployeeRouter</a></li><li><a href="module-ExcessReport.html">ExcessReport</a></li><li><a href="module-ExcessReportRouter.html">ExcessReportRouter</a></li><li><a href="module-FontSizeButton.html">FontSizeButton</a></li><li><a href="module-FontSizeContext.html">FontSizeContext</a></li><li><a href="module-FontSizeProvider.html">FontSizeProvider</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Home.html">Home</a></li><li><a href="module-HomeNav.html">HomeNav</a></li><li><a href="module-Index.html">Index</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-InventoryRouter.html">InventoryRouter</a></li><li><a href="module-LanguageContext.html">LanguageContext</a></li><li><a href="module-ManagerHome.html">ManagerHome</a></li><li><a href="module-ManagerLogin.html">ManagerLogin</a></li><li><a href="module-Map.html">Map</a></li><li><a href="module-MapButton.html">MapButton</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuSelection.html">MenuSelection</a></li><li><a href="module-Milk.html">Milk</a></li><li><a href="module-MilkCashier.html">MilkCashier</a></li><li><a href="module-Modal.html">Modal</a></li><li><a href="module-OrderContext.html">OrderContext</a></li><li><a href="module-OrderContextCashier.html">OrderContextCashier</a></li><li><a href="module-OrderHistory.html">OrderHistory</a></li><li><a href="module-OrderLanding.html">OrderLanding</a></li><li><a href="module-OrderSummary.html">OrderSummary</a></li><li><a href="module-PaymentModal.html">PaymentModal</a></li><li><a href="module-PaymentModalCashier.html">PaymentModalCashier</a></li><li><a href="module-PopularDrink.html">PopularDrink</a></li><li><a href="module-PopularDrinkRouter.html">PopularDrinkRouter</a></li><li><a href="module-Punch.html">Punch</a></li><li><a href="module-PunchCashier.html">PunchCashier</a></li><li><a href="module-PurchaseComplete.html">PurchaseComplete</a></li><li><a href="module-PurchaseCompleteCashier.html">PurchaseCompleteCashier</a></li><li><a href="module-PurchaseRouter.html">PurchaseRouter</a></li><li><a href="module-ReceiptPage.html">ReceiptPage</a></li><li><a href="module-RestockReport.html">RestockReport</a></li><li><a href="module-RestockRouter.html">RestockRouter</a></li><li><a href="module-SalesReport.html">SalesReport</a></li><li><a href="module-SalesTogether.html">SalesTogether</a></li><li><a href="module-SearchBar.html">SearchBar</a></li><li><a href="module-Seasonal.html">Seasonal</a></li><li><a href="module-SeasonalCashier.html">SeasonalCashier</a></li><li><a href="module-SideBar.html">SideBar</a></li><li><a href="module-ToppingsModal.html">ToppingsModal</a></li><li><a href="module-ToppingsRouter.html">ToppingsRouter</a></li><li><a href="module-ToppingsTable.html">ToppingsTable</a></li><li><a href="module-TranslateComponent.html">TranslateComponent</a></li><li><a href="module-VerifyManager.html">VerifyManager</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-WeatherButton.html">WeatherButton</a></li><li><a href="module-Yogurt.html">Yogurt</a></li><li><a href="module-YogurtCashier.html">YogurtCashier</a></li><li><a href="module-index_.html">index</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:10:50 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
